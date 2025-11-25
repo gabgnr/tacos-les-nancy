@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 // Animation variants
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 1000 : -1000,
+    x: direction > 0 ? 300 : -300,
     opacity: 0
   }),
   center: {
@@ -19,7 +19,7 @@ const slideVariants = {
   },
   exit: (direction: number) => ({
     zIndex: 0,
-    x: direction < 0 ? 1000 : -1000,
+    x: direction < 0 ? 300 : -300,
     opacity: 0
   })
 };
@@ -51,6 +51,7 @@ const Builder: React.FC = () => {
     if (step === 1 && meats.length === 0) return;
     setDirection(1);
     setStep(prev => prev + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBack = () => {
@@ -130,15 +131,15 @@ const Builder: React.FC = () => {
   };
 
   return (
-    <div className="pt-28 pb-20 min-h-screen bg-dark-900 overflow-hidden flex flex-col">
+    <div className="pt-24 md:pt-28 pb-20 min-h-screen bg-dark-900 flex flex-col">
       <div className="max-w-5xl mx-auto px-4 w-full flex-grow flex flex-col">
         
         {/* Header & Progress */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-white mb-2">
+        <div className="mb-6 md:mb-8 text-center">
+          <h1 className="text-2xl md:text-5xl font-display font-bold text-white mb-2">
             COMPOSEZ VOTRE <span className="text-brand">LÉGENDE</span>
           </h1>
-          <p className="text-gray-400 mb-6">{steps[step].subtitle}</p>
+          <p className="text-gray-400 text-sm md:text-base mb-6">{steps[step].subtitle}</p>
           
           <div className="w-full h-1 bg-dark-700 rounded-full mb-8 relative overflow-hidden">
             <motion.div 
@@ -151,7 +152,7 @@ const Builder: React.FC = () => {
         </div>
 
         {/* Dynamic Content Area */}
-        <div className="relative flex-grow min-h-[400px]">
+        <div className="relative flex-grow w-full overflow-x-hidden">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             
             {/* Step 0: Size */}
@@ -163,10 +164,10 @@ const Builder: React.FC = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="absolute inset-0 w-full"
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                className="w-full py-2"
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                   {BUILDER_DATA.sizes.map((option) => (
                     <div 
                       key={option.id}
@@ -174,16 +175,16 @@ const Builder: React.FC = () => {
                         setSize(option);
                         setMeats([]); // Reset meats if size changes
                       }}
-                      className={`cursor-pointer group relative p-8 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center text-center gap-4 hover:shadow-lg hover:shadow-brand/10 ${
+                      className={`cursor-pointer group relative p-6 md:p-8 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 md:gap-4 hover:shadow-lg hover:shadow-brand/10 ${
                         size?.id === option.id 
                           ? 'bg-brand/10 border-brand' 
                           : 'bg-dark-800 border-dark-700 hover:border-brand/50'
                       }`}
                     >
-                      <div className="text-4xl font-display font-bold text-white group-hover:text-brand transition-colors">
+                      <div className="text-3xl md:text-4xl font-display font-bold text-white group-hover:text-brand transition-colors">
                         {option.name}
                       </div>
-                      <div className="text-brand font-bold text-xl">{option.price.toFixed(2)}€</div>
+                      <div className="text-brand font-bold text-lg md:text-xl">{option.price.toFixed(2)}€</div>
                       <p className="text-gray-400 text-sm">{option.desc}</p>
                       <div className="text-xs uppercase tracking-widest font-bold text-gray-500 mt-2">
                         {option.meatCount} Viande{option.meatCount > 1 ? 's' : ''}
@@ -203,10 +204,10 @@ const Builder: React.FC = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="absolute inset-0 w-full"
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                className="w-full py-2"
               >
-                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                   {BUILDER_DATA.meats.map((meat) => {
                     const isSelected = meats.includes(meat.id);
                     const isDisabled = !isSelected && meats.length >= (size?.meatCount || 1);
@@ -216,21 +217,23 @@ const Builder: React.FC = () => {
                         key={meat.id}
                         onClick={() => toggleMeat(meat.id)}
                         disabled={isDisabled}
-                        className={`p-6 rounded-lg border-2 transition-all text-center font-bold ${
+                        className={`p-4 md:p-6 rounded-lg border-2 transition-all text-center font-bold text-sm md:text-base ${
                           isSelected 
-                            ? 'bg-brand text-dark-900 border-brand scale-105 shadow-lg shadow-brand/20' 
+                            ? 'bg-brand text-dark-900 border-brand shadow-md shadow-brand/20' 
                             : isDisabled
                               ? 'bg-dark-800 border-dark-700 text-dark-700 cursor-not-allowed opacity-50'
                               : 'bg-dark-800 border-dark-700 text-gray-300 hover:border-brand/50 hover:text-white'
                         }`}
                       >
-                        {meat.name}
-                        {isSelected && <Check size={16} className="inline-block ml-2" />}
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <span>{meat.name}</span>
+                          {isSelected && <Check size={16} className="text-dark-900" />}
+                        </div>
                       </button>
                     );
                   })}
                  </div>
-                 <p className="text-center mt-6 text-brand">
+                 <p className="text-center mt-6 text-brand font-bold">
                    {meats.length} / {size?.meatCount} viandes sélectionnées
                  </p>
               </motion.div>
@@ -245,10 +248,10 @@ const Builder: React.FC = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="absolute inset-0 w-full"
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                className="w-full py-2"
               >
-                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                   {BUILDER_DATA.sauces.map((sauce) => {
                     const isSelected = sauces.includes(sauce.id);
                     const isRequired = sauce.required;
@@ -258,17 +261,19 @@ const Builder: React.FC = () => {
                         key={sauce.id}
                         onClick={() => toggleSauce(sauce.id)}
                         disabled={isRequired}
-                        className={`p-6 rounded-lg border-2 transition-all text-center font-bold relative overflow-hidden ${
+                        className={`p-4 md:p-6 rounded-lg border-2 transition-all text-center font-bold relative overflow-hidden text-sm md:text-base ${
                           isRequired
                             ? 'bg-brand/20 border-brand/50 text-brand cursor-default'
                             : isSelected 
-                              ? 'bg-brand text-dark-900 border-brand shadow-lg shadow-brand/20' 
+                              ? 'bg-brand text-dark-900 border-brand shadow-md shadow-brand/20' 
                               : 'bg-dark-800 border-dark-700 text-gray-300 hover:border-brand/50 hover:text-white'
                         }`}
                       >
-                        {sauce.name}
-                        {isSelected && <Check size={16} className="inline-block ml-2" />}
-                        {isRequired && <span className="absolute top-1 right-2 text-[10px] uppercase">Incluse</span>}
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <span>{sauce.name}</span>
+                          {isSelected && !isRequired && <Check size={16} />}
+                        </div>
+                        {isRequired && <span className="absolute top-0 right-0 bg-brand text-dark-900 text-[9px] px-2 py-0.5 uppercase font-bold rounded-bl-lg">Incluse</span>}
                       </button>
                     );
                   })}
@@ -285,10 +290,10 @@ const Builder: React.FC = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="absolute inset-0 w-full"
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                className="w-full py-2"
               >
-                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                   {BUILDER_DATA.extras.map((extra) => {
                     const isSelected = extras.includes(extra.id);
 
@@ -296,9 +301,9 @@ const Builder: React.FC = () => {
                       <button
                         key={extra.id}
                         onClick={() => toggleExtra(extra.id)}
-                        className={`p-6 rounded-lg border-2 transition-all text-center font-bold flex flex-col items-center justify-center gap-2 ${
+                        className={`p-4 md:p-6 rounded-lg border-2 transition-all text-center font-bold flex flex-col items-center justify-center gap-2 text-sm md:text-base ${
                           isSelected 
-                            ? 'bg-brand text-dark-900 border-brand shadow-lg shadow-brand/20' 
+                            ? 'bg-brand text-dark-900 border-brand shadow-md shadow-brand/20' 
                             : 'bg-dark-800 border-dark-700 text-gray-300 hover:border-brand/50 hover:text-white'
                         }`}
                       >
@@ -322,13 +327,13 @@ const Builder: React.FC = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="absolute inset-0 w-full flex flex-col items-center"
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                className="w-full flex flex-col items-center py-2"
               >
-                 <div className="bg-white text-dark-900 p-8 rounded-lg shadow-2xl max-w-md w-full relative">
+                 <div className="bg-white text-dark-900 p-6 md:p-8 rounded-lg shadow-2xl max-w-md w-full relative">
                    <div className="absolute top-0 left-0 w-full h-2 bg-brand" />
                    
-                   <h2 className="text-3xl font-display font-bold mb-6 text-center border-b border-gray-200 pb-4">
+                   <h2 className="text-2xl md:text-3xl font-display font-bold mb-6 text-center border-b border-gray-200 pb-4">
                      VOTRE TACOS
                    </h2>
 
@@ -339,13 +344,13 @@ const Builder: React.FC = () => {
                      </div>
                      
                      <div className="pl-4 border-l-2 border-brand/50 space-y-2 text-sm text-gray-600">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-col gap-1">
                           <span className="font-semibold text-dark-900">Viandes:</span> 
-                          {meats.map(m => BUILDER_DATA.meats.find(x => x.id === m)?.name).join(', ')}
+                          <span className="text-gray-500">{meats.map(m => BUILDER_DATA.meats.find(x => x.id === m)?.name).join(', ')}</span>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-col gap-1">
                           <span className="font-semibold text-dark-900">Sauces:</span>
-                          {sauces.map(s => BUILDER_DATA.sauces.find(x => x.id === s)?.name).join(', ')}
+                          <span className="text-gray-500">{sauces.map(s => BUILDER_DATA.sauces.find(x => x.id === s)?.name).join(', ')}</span>
                         </div>
                         {extras.length > 0 && (
                           <div className="flex flex-col gap-1 mt-2">
@@ -353,8 +358,8 @@ const Builder: React.FC = () => {
                             {extras.map(e => {
                               const item = BUILDER_DATA.extras.find(x => x.id === e);
                               return (
-                                <div key={e} className="flex justify-between">
-                                  <span>- {item?.name}</span>
+                                <div key={e} className="flex justify-between pl-2">
+                                  <span>{item?.name}</span>
                                   <span>+{item?.price.toFixed(2)}€</span>
                                 </div>
                               );
@@ -391,16 +396,17 @@ const Builder: React.FC = () => {
         </div>
 
         {/* Footer Navigation Controls */}
-        <div className="mt-8 flex justify-between items-center pt-8 border-t border-dark-800">
-           {step > 0 && step < 4 && (
-             <button 
-               onClick={handleBack}
-               className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-             >
-               <ChevronLeft size={20} /> Précédent
-             </button>
-           )}
-           {step === 0 && <div />} {/* Spacer */}
+        <div className="mt-8 flex justify-between items-center pt-6 border-t border-dark-800 bg-dark-900 sticky bottom-0 pb-6 z-10">
+           <div className="w-24">
+             {step > 0 && step < 4 && (
+               <button 
+                 onClick={handleBack}
+                 className="flex items-center gap-1 md:gap-2 text-gray-400 hover:text-white transition-colors text-sm md:text-base"
+               >
+                 <ChevronLeft size={20} /> <span className="hidden sm:inline">Précédent</span>
+               </button>
+             )}
+           </div>
 
            {step < 4 && (
              <Button 
@@ -411,13 +417,14 @@ const Builder: React.FC = () => {
                }
                className={
                  (step === 0 && !size) || (step === 1 && meats.length === 0) 
-                 ? "opacity-50 cursor-not-allowed grayscale" 
-                 : ""
+                 ? "opacity-50 cursor-not-allowed grayscale px-4 md:px-6" 
+                 : "px-4 md:px-6"
                }
              >
                {step === 3 ? 'Terminer' : 'Suivant'} <ChevronRight size={20} className="ml-1" />
              </Button>
            )}
+           {step === 4 && <div className="w-24" />}
         </div>
 
       </div>
